@@ -1,0 +1,76 @@
+services:
+  # --- база данных ---
+  db:
+    image: postgres:16-alpine
+    container_name: translator_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-translator_db}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-translator_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app_net
+
+  # --- web-сервис (переводчик) ---
+  web-service:
+    build: ./web-service
+    container_name: translator_web_service
+    environment:
+      SERVICE_PORT: "5001"
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5001/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_net
+
+  # --- бэкенд ---
+  backend:
+    build: ./backend
+    container_name: translator_backend
+    environment:
+      DATABASE_URL: "host=db port=5432 dbname=${POSTGRES_DB:-translator_db} user=${POSTGRES_USER:-postgres} password=${POSTGRES_PASSWORD:-postgres}"
+      WEB_SERVICE_URL: "http://web-service:5001"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      web-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_net
+
+  # --- фронтенд ---
+  frontend:
+    build: ./frontend
+    container_name: translator_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app_net
+
+volumes:
+  pgdata:
+
+networks:
+  app_net:
+    driver: bridge

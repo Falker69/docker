@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translator · Lab 18</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-icon">🌐</div>
+    <div class="brand-text">
+      <h1>Translator</h1>
+      <p>Lab 18 · Docker Compose</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat"><span class="stat-value">5</span><span class="stat-label">langs</span></div>
+    <div class="stat"><span class="stat-value" id="statVocab">—</span><span class="stat-label">words</span></div>
+    <div class="stat"><span class="stat-value" id="statHistory">—</span><span class="stat-label">history</span></div>
+    <div class="status-dot" id="statusDot" title="проверка..."></div>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <div class="col-main">
+
+    <section class="panel panel-translate">
+      <div class="lang-bar">
+        <div class="lang-pills" id="langPills">
+          <button class="lang-pill active" data-lang="en">EN</button>
+          <button class="lang-pill" data-lang="de">DE</button>
+          <button class="lang-pill" data-lang="fr">FR</button>
+          <button class="lang-pill" data-lang="es">ES</button>
+          <button class="lang-pill" data-lang="ru">RU</button>
+        </div>
+        <button class="swap-btn" id="swapBtn" title="поменять направление / вернуть перевод">⟷</button>
+      </div>
+
+      <div class="translate-grid">
+        <div class="translate-cell">
+          <label>Оригинал</label>
+          <textarea id="sourceText" placeholder="Введите текст для перевода…"></textarea>
+          <div class="input-footer">
+            <span id="charCount">0</span> / 5000 символов
+          </div>
+        </div>
+
+        <div class="translate-cell translate-output">
+          <label>Перевод</label>
+          <div id="result" class="output-box">
+            <div id="resultText" class="output-text">Перевод появится здесь…</div>
+            <div id="resultMeta" class="output-meta"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="translate-actions">
+        <button class="btn btn-primary" id="translateBtn">Перевести →</button>
+      </div>
+      <p id="translateError" class="error hidden"></p>
+    </section>
+
+    <section class="panel panel-dict">
+      <div class="panel-header">
+        <h2>Словарь</h2>
+        <div class="panel-controls">
+          <input type="search" id="vocabSearch" placeholder="Поиск…">
+          <select id="vocabFilter"><option value="all">Все направления</option></select>
+        </div>
+      </div>
+      <p id="vocabCount" class="meta"></p>
+      <div class="dict-table-wrap">
+        <table class="dict-table">
+          <thead><tr><th>Слово</th><th>Перевод</th><th>Напр.</th></tr></thead>
+          <tbody id="vocabBody"><tr><td colspan="3" class="empty">Загрузка…</td></tr></tbody>
+        </table>
+      </div>
+      <p id="vocabError" class="error hidden"></p>
+    </section>
+
+  </div>
+
+  <aside class="col-side">
+
+    <section class="panel panel-history">
+      <div class="panel-header">
+        <h2>История</h2>
+        <button class="btn-icon" id="historyBtn" title="обновить">↻</button>
+      </div>
+      <p id="historyCount" class="meta"></p>
+      <div id="historyList" class="history-timeline"></div>
+      <p id="historyError" class="error hidden"></p>
+    </section>
+
+    <section class="panel panel-info">
+      <h2>О проекте</h2>
+      <ul class="info-list">
+        <li><span class="dot"></span>Frontend · nginx:8080</li>
+        <li><span class="dot"></span>Backend · Flask:8000</li>
+        <li><span class="dot"></span>PostgreSQL · :5432</li>
+        <li><span class="dot"></span>Translator · :5001</li>
+      </ul>
+      <p class="small">4 контейнера в bridge-сети <code>app_net</code></p>
+    </section>
+
+  </aside>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
